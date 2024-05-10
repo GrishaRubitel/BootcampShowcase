@@ -1,7 +1,16 @@
 FROM jelastic/maven:3.9.5-openjdk-22.ea-b17 AS build
-COPY ./src src
-COPY ./pom.xml pom.xml
-RUN mvn -f pom.xml clean package -DskipTests
+WORKDIR .
+COPY ./BootcampProjBrt/src ./BootcampProjBrt/src
+COPY ./BootcampProjBrt/pom.xml ./BootcampProjBrt/pom.xml
+COPY ./Assets/additional_classes/AbonentHolder.java ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/additional_classes/BrtTransaction.java ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/additional_classes/MonthStack.java ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/kafka_config ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_brt_abonents ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_cdr_abonents ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_tariff_stats ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_transaction ./BootcampProjBrt/src/main/java/com/bootcamp_proj/bootcampproj/
+RUN mvn -f ./BootcampProjBrt/pom.xml clean package -DskipTests
 
 FROM openjdk:22
 COPY --from=build ../target/BootcampProj-0.0.1-SNAPSHOT.jar /usr/local/lib/demo.jar

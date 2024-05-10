@@ -1,11 +1,17 @@
 FROM jelastic/maven:3.9.5-openjdk-22.ea-b17 AS build
-COPY ./src src
-COPY ./pom.xml pom.xml
-RUN mvn -f pom.xml clean package -DskipTests
+COPY ./BootcampProjCdrGen/src ./BootcampProjCdrGen/src
+COPY ./BootcampProjCdrGen/pom.xml pom.xml
+COPY ./Assets/additional_classes/AbonentHolder.java ./BootcampProjCdrGen/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/additional_classes/ConcurentRecordHolder.java ./BootcampProjCdrGen/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/kafka_config ./BootcampProjCdrGen/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_cdr_abonents ./BootcampProjCdrGen/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ../Assets/psql_transaction ./BootcampProjCdrGen/src/main/java/com/bootcamp_proj/bootcampproj/
+RUN mvn -f ./BootcampProjCdrGen/pom.xml clean package -DskipTests
 
 FROM openjdk:22
 COPY --from=build ../target/BootcampProj-0.0.1-SNAPSHOT.jar /usr/local/lib/demo.jar
-COPY ./temp/CDR.txt /usr/local/temp/CDR.txt
-COPY ./temp/CrmAbonents.txt /usr/local/temp/CrmAbonents.txt
+RUN cd ..
+COPY ./temp/CDR.txt ./BootcampProjCdrGen/usr/local/temp/CDR.txt
+COPY ./temp/CrmAbonents.txt ./BootcampProjCdrGen/usr/local/temp/CrmAbonents.txt
 EXPOSE 8091
 ENTRYPOINT ["java","-jar","/usr/local/lib/demo.jar"]

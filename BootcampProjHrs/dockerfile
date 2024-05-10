@@ -1,7 +1,15 @@
 FROM jelastic/maven:3.9.5-openjdk-22.ea-b17 AS build
-COPY ./src src
-COPY ./pom.xml pom.xml
-RUN mvn -f pom.xml clean package -DskipTests
+WORKDIR .
+COPY ./BootcampProjBrt/src ./BootcampProjHrs/src
+COPY ./BootcampProjHrs/pom.xml ./BootcampProjHrs/pom.xml
+COPY ./Assets/additional_classes/BrtTransaction.java ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/additional_classes/HrsCallbackRecord.java ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/additional_classes/HrsTransaction.java ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/additional_classes
+COPY ./Assets/psql_brt_abonents ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_hrs_user_minutes ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_tariffs_stats ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/
+COPY ./Assets/psql_transactions ./BootcampProjHrs/src/main/java/com/bootcamp_proj/bootcampproj/
+RUN mvn -f ./BootcampProjHrs/pom.xml clean package -DskipTests
 
 FROM openjdk:22
 COPY --from=build ../target/BootcampProj-0.0.1-SNAPSHOT.jar /usr/local/lib/demo.jar

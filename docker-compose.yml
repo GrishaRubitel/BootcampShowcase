@@ -78,8 +78,8 @@ services:
       - kafka_net
   hrs1:
     build:
-      context: ./BootcampProjHrs/
-      dockerfile: ./dockerfile
+      context: .
+      dockerfile: ./BootcampProjHrs/dockerfile
     networks:
       - db_net
       - service_net
@@ -88,8 +88,8 @@ services:
     restart: unless-stopped
   hrs2:
     build:
-      context: ./BootcampProjHrs/
-      dockerfile: ./dockerfile
+      context: .
+      dockerfile: ./BootcampProjHrs/dockerfile
     networks:
       - db_net
       - service_net
@@ -111,8 +111,8 @@ services:
     - service_net
   brt:
     build:
-      context: ./BootcampProjBrt/
-      dockerfile: ./dockerfile
+      context: .
+      dockerfile: ./BootcampProjBrt/dockerfile
     networks:
       - db_net
       - service_net
@@ -125,8 +125,8 @@ services:
       - kafka2
   cdr:
     build:
-      context: ./BootcampProjCdrGen/
-      dockerfile: ./dockerfile
+      context: .
+      dockerfile: ./BootcampProjCdrGen/dockerfile
     networks:
       - db_net
       - kafka_net

@@ -1,6 +1,6 @@
 package com.bootcamp_proj.bootcampproj.standalone_services;
 
-
+import com.bootcamp_proj.bootcampproj.additional_classes.HrsCallbackRecord;
 import com.bootcamp_proj.bootcampproj.additional_classes.HrsCallbackRecord;
 import com.bootcamp_proj.bootcampproj.additional_classes.HrsTransaction;
 import com.bootcamp_proj.bootcampproj.psql_brt_abonents.BrtAbonentsService;
