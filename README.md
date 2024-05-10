@@ -1,5 +1,7 @@
 # README
 
+## НЕ РАБОТАЕТ!
+
 Репозиторий с проектом, готовым (почти) к сдаче. Для его запуска клонируем/качаем себе этот репозиторий и ставим Docker Desktop и WSL
 
 1. [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
