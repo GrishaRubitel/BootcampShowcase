@@ -1,7 +1,7 @@
 openapi: '3.0.0'
 info: 
   title: HRS API
-  description: Описание методов, обеспечивающих взаимодействие сервисов BRT и HRS. Сделана на Nexign Bootcamp для проекта Baby Billing.
+  description: Описание методов, обеспечивающих взаимодейтсвие сервисов BRT и HRS. Сделана на Nexign Bootcamp для проекта Baby Billing.
   version: '1.0.0'
 servers:
   - url: "http://localhost:9999"
