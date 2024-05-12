@@ -16,26 +16,24 @@ import java.util.logging.Logger;
 @RequestMapping("/abonents")
 @RestController
 public class CrmHandler {
-    private static final String STARTER_URL = "http://brt:8078/api/brt";
+    private static final String STARTER_URL = "http://brt:8083/api/brt";
     private static final String LIST_URL = "/list";
     private static final String PAY_URL = "/pay";
     private static final String TARIFF_CHANGER_URL = "/changeTariff";
     private static final String CREATE_URL = "/create";
-    private static final String CHECK_CONTAINMENT = "/check-containment";
-    private static final String VALUE_PARAM = "?value=";
-    private static final String MONEY_PARAM = "?money=";
-    private static final String MSISDN_PARAM = "?msisdn=";
-    private static final String TARIFF_PARAM = "?tariffId=";
     private static final String URL_BREAK = "/";
     private static final String COLON = ":";
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String BASIC = "Basic ";
-    private static final String DENY = "Access Prohibited";
+    private static final String DENY = "AccessProhibited";
     private static final String CUSTOM_HEADER = "Custom-Header";
     private static final String CRM_SIGNATURE = "CRM-Signature";
     private static final String ADMIN = "admin";
-
-
+    private static final String AUTH_HEADER = "Authorization";
+    private static final String BASIC = "Basic ";
+    private static final String VALUE_PARAM = "?value=";
+    private static final String MONEY_PARAM = "?money=";
+    private static final String CHECK_CONTAINMENT = "/check-containment";
+    private static final String MSISDN_PARAM = "?msisdn=";
+    private static final String TARIFF_PARAM = "?tariffId=";
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final Logger logger = Logger.getLogger(CrmHandler.class.getName());
 
@@ -73,8 +71,9 @@ public class CrmHandler {
     }
 
     @PostMapping("/create")
-    private ResponseEntity<String> managerCreateNewAbonent(@RequestBody String body,
-                                                           @RequestHeader(AUTH_HEADER) HttpHeaders head) {
+    private ResponseEntity<String> managerCreateNewAbonent(
+            @RequestBody String body,
+            @RequestHeader(AUTH_HEADER) HttpHeaders head) {
         if (checkAdminAuthorization(head)) {
             String url = STARTER_URL + CREATE_URL;
             return sendRequestToBrt(url, HttpMethod.POST, body);

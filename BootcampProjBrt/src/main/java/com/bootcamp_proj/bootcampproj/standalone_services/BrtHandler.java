@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -41,7 +40,7 @@ public class BrtHandler {
     private static final String BOOTCAMP_PROJ_GROUP = "bootcamp-proj-group";
     private static final String DATA_TOPIC = "data-topic";
     private static final String PART_ZERO = "0";
-    //private static final String CDR_FILE = "./usr/local/temp/CDR.txt";
+    //private static final String CDR_FILE = "../../../../temp/CDR.txt";
     private static final String HOST = "http://nginx_hrs:";
     private static final String SINGLE_PAY_PARAM = "/api/hrs/single-pay?param=";
     private static final String MONTHLY_PAY_PARAM = "/api/hrs/monthly-pay?param=";
@@ -60,7 +59,7 @@ public class BrtHandler {
     private static final String ABONENT_NOT_FOUND = "Abonent Not Found";
     private static final String TARIFF_NOT_FOUND = "Tariff Not Found";
     private static final String ALREADY_SET = "AlreadySet";
-    private static final String ALREADY_REGISTRED = "Abonent Already Registred";
+    private static final String ALREADY_REGISTRED = "AbonentAlreadyRegistred";
     private static final String SUCCESS = "Success";
     private static final String MONTH_UNIX_TIME_TXT = "./usr/local/temp/MonthUnixTime.txt";
     private static final String LOGS_PAYMENT_CORROSION = "./usr/local/logs/PaymentCorrosion.txt";
@@ -162,7 +161,7 @@ public class BrtHandler {
      * API для обработки запросов со стороны CRM по регистрации абонента в сети оператора "Ромашка"
      * @param body Тело запроса
      * @param head Заголовок с сигнатуорй источника
-     * @return Ответ с информаицей об абоненте или с информацией об ошибке
+     * @return Ответ с информацией об абоненте или с информацией об ошибке
      */
     @PostMapping("/create")
     private ResponseEntity<String> managerCreateNewAbonent(@RequestBody String body, @RequestHeader(CUSTOM_HEADER) String head) {
@@ -486,7 +485,7 @@ public class BrtHandler {
 //     * Метод для мануального запуска BRT-сервиса при помощи информации из файла
 //     */
 //
-//    public void startWithExistingFile() {
+//    private void startWithExistingFile() {
 //        StringBuilder content = new StringBuilder();
 //        try (BufferedReader reader = new BufferedReader(new FileReader(CDR_FILE))) {
 //            String line;

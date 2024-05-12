@@ -1,4 +1,5 @@
 FROM jelastic/maven:3.9.5-openjdk-22.ea-b17 AS build
+RUN ls
 COPY ./src src
 COPY ./pom.xml pom.xml
 RUN mvn -f pom.xml clean package -DskipTests

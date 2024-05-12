@@ -37,8 +37,8 @@ public class HrsHandler {
     private static final String BRT_SIGNATURE = "BRT-Signature";
     private static final String CUSTOM_HEADER = "Custom-Header";
 
-    private Map<String, TariffStats> tariffStats;
-    private WeakHashMap<Long, UserMinutes> usersWithTariff = new WeakHashMap<>();
+    private WeakHashMap<String, TariffStats> tariffStats;
+    private Map<Long, UserMinutes> usersWithTariff = new HashMap<>();
     private static final Logger logger = Logger.getLogger(HrsHandler.class.getName());
 
 
@@ -64,7 +64,7 @@ public class HrsHandler {
     }
 
     @GetMapping("/monthly-pay")
-    public ResponseEntity<String> monthlyPay(@RequestParam String param, @RequestHeader(CUSTOM_HEADER) String head) {
+    public ResponseEntity<String> monthlyPay(@RequestParam(name = "param") String param, @RequestHeader(CUSTOM_HEADER) String head) {
         if (checkSignature(head)) {
             return payDay(decodeParam(param));
         } else {
@@ -73,7 +73,9 @@ public class HrsHandler {
     }
 
     @PutMapping("/change-tariff")
-    public ResponseEntity<String> changeTariff(@RequestParam String param, @RequestHeader(CUSTOM_HEADER) String head) {
+    public ResponseEntity<String> changeTariff(@RequestParam String param,
+
+                                               @RequestHeader(CUSTOM_HEADER) String head) {
         if (checkSignature(head)) {
             return updateLocalTariff(decodeParam(param));
         } else {
@@ -89,18 +91,19 @@ public class HrsHandler {
         try {
             jsonNode = objectMapper.readTree(param);
             msisdn = jsonNode.get("msisdn").asLong();
-            tariff = jsonNode.get("tariff_id").asText();
+            tariff = jsonNode.get("tariffId").asText();
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>(INCORRECT_DATA, HttpStatus.BAD_REQUEST);
         }
 
-        UserMinutes user = new UserMinutes(msisdn, tariff, 0, 0);
-        TariffStats ts = tariffStats.get(tariff);
-
-        if (usersWithTariff.containsKey(msisdn) && ts.getNum_of_minutes() == 0) {
-            usersWithTariff.remove(msisdn);
-            userMinutesService.deleteUser(msisdn);
-        } else if (ts.getNum_of_minutes() != 0) {
+        TariffStats tS = tariffStats.get(tariff);
+        if (tS.getNum_of_minutes() == 0) {
+            if (checkUserContainment(msisdn, tariff) != null) {
+                usersWithTariff.remove(msisdn);
+                userMinutesService.deleteUser(msisdn);
+            }
+        } else {
+            UserMinutes user = checkUserContainment(msisdn, tariff);
             usersWithTariff.put(user.getMsisdn(), user);
             userMinutesService.saveUserMinutes(user);
         }
@@ -113,12 +116,9 @@ public class HrsHandler {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(param);
             long msisdn = jsonNode.get("msisdn").asLong();
-            String tariff = jsonNode.get("tariff_d").asText();
+            String tariff = jsonNode.get("tariffId").asText();
 
             UserMinutes tempUser = checkUserContainment(msisdn, tariff);
-            if (tempUser == null) {
-                return new ResponseEntity<>(INCORRECT_DATA, HttpStatus.BAD_REQUEST);
-            }
             tempUser.zeroAllMinutes();
             userMinutesService.saveUserMinutes(tempUser);
 
@@ -138,7 +138,7 @@ public class HrsHandler {
         } catch (Exception e) {
             return new ResponseEntity<>(INCORRECT_DATA, HttpStatus.BAD_REQUEST);
         }
-        if (tariffStats.get(record.getTariffId()).getNum_of_minutes() == 0) {
+        if (tariffStats.get(record.getTariffId()).getPrice_of_period() == 0) {
             String response = noMinutesTariff(record, record.getTariffId());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -181,6 +181,7 @@ public class HrsHandler {
             userMinutes.setAllMinutes(tStats.getNum_of_minutes());
             returnVal = noMinutesTariff(record, TARIFF_BY_DEFAULT);
         }
+
         userMinutesService.saveUserMinutes(userMinutes);
         return returnVal;
     }
@@ -189,22 +190,19 @@ public class HrsHandler {
         if (usersWithTariff.containsKey(msisdn)) {
             return usersWithTariff.get(msisdn);
         } else {
-            int mins = tariffStats.get(tariff).getNum_of_minutes();
-            UserMinutes temp = userMinutesService.getUser(msisdn);
-            if (temp != null) {
-                usersWithTariff.put(temp.getMsisdn(), temp);
-            } else if (mins != 0) {
-                temp = new UserMinutes(msisdn, tariff, ZERO, ZERO);
-                usersWithTariff.put(temp.getMsisdn(), temp);
-            } else {
+            if (userMinutesService.getUser(msisdn) == null) {
                 return null;
+            } else if (tariffStats.get(tariff).getNum_of_minutes() != 0) {
+                UserMinutes temp = new UserMinutes(msisdn, tariff, ZERO, ZERO);
+                usersWithTariff.put(temp.getMsisdn(), temp);
+                return temp;
             }
-            return temp;
+            return null;
         }
     }
 
-    private  Map<String, TariffStats> uploadTariff() {
-        Map<String, TariffStats> tS = new HashMap<>();
+    private  WeakHashMap<String, TariffStats> uploadTariff() {
+        WeakHashMap<String, TariffStats> tS = new WeakHashMap<>();
         for (TariffStats elem : tariffStatsService.getAllTariffStats()) {
             tS.put(elem.getTariff_id(), elem);
         }
