@@ -37,7 +37,7 @@ public class CdrGenerator implements InitializingBean {
     private static final String CDR_ABONENTS_TXT = "./usr/local/temp/CrmAbonents.txt";
     private static final String DATA_TOPIC = "data-topic";
     private static final int PART_ZERO_INT = 0;
-    private static final String URL_START = "http://crm1:9987/abonents/";
+    private static final String URL_START = "http://nginx_crm:9989/abonents/";
     private static final String URL_PAY = "/pay?money=";
     private static final String URL_LIST = "list";
     private static final String CREATE_URL = "create";

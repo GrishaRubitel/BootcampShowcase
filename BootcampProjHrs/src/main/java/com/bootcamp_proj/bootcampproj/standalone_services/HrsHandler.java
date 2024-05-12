@@ -98,10 +98,8 @@ public class HrsHandler {
 
         TariffStats tS = tariffStats.get(tariff);
         if (tS.getNum_of_minutes() == 0) {
-            if (checkUserContainment(msisdn, tariff) != null) {
-                usersWithTariff.remove(msisdn);
-                userMinutesService.deleteUser(msisdn);
-            }
+            usersWithTariff.remove(msisdn);
+            userMinutesService.deleteUser(msisdn);
         } else {
             UserMinutes user = checkUserContainment(msisdn, tariff);
             usersWithTariff.put(user.getMsisdn(), user);
@@ -190,14 +188,9 @@ public class HrsHandler {
         if (usersWithTariff.containsKey(msisdn)) {
             return usersWithTariff.get(msisdn);
         } else {
-            if (userMinutesService.getUser(msisdn) == null) {
-                return null;
-            } else if (tariffStats.get(tariff).getNum_of_minutes() != 0) {
-                UserMinutes temp = new UserMinutes(msisdn, tariff, ZERO, ZERO);
-                usersWithTariff.put(temp.getMsisdn(), temp);
-                return temp;
-            }
-            return null;
+            UserMinutes temp = new UserMinutes(msisdn, tariff, ZERO, ZERO);
+            usersWithTariff.put(temp.getMsisdn(), temp);
+            return temp;
         }
     }
 
