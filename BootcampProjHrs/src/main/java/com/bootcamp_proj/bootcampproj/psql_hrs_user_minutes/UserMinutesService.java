@@ -20,4 +20,8 @@ public class UserMinutesService {
     public UserMinutes getUser(long msisdn) {
         return userMinutesRepository.findById(msisdn).orElse(null);
     }
+
+    public void deleteUser(long msisdn) {
+        userMinutesRepository.deleteById(msisdn);
+    }
 }

@@ -12,8 +12,7 @@ import java.io.IOException;
 public class BootcampProjApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BootcampProjApplication.class, args);
-
-		BrtHandler brt = BrtHandler.getInstance();
-		brt.startWithExistingFile();
+//		BrtHandler brt = BrtHandler.getInstance();
+//		brt.startWithExistingFile();
 	}
 }

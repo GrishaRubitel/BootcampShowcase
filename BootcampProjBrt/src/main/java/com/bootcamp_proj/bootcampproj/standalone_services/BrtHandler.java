@@ -37,11 +37,11 @@ import java.util.regex.Pattern;
 @EnableAsync
 @RequestMapping("/api/brt/")
 @RestController
-public class BrtHandler implements InitializingBean {
+public class BrtHandler {
     private static final String BOOTCAMP_PROJ_GROUP = "bootcamp-proj-group";
     private static final String DATA_TOPIC = "data-topic";
     private static final String PART_ZERO = "0";
-    private static final String CDR_FILE = "./usr/local/temp/CDR.txt";
+    //private static final String CDR_FILE = "./usr/local/temp/CDR.txt";
     private static final String HOST = "http://nginx_hrs:";
     private static final String SINGLE_PAY_PARAM = "/api/hrs/single-pay?param=";
     private static final String MONTHLY_PAY_PARAM = "/api/hrs/monthly-pay?param=";
@@ -73,18 +73,6 @@ public class BrtHandler implements InitializingBean {
     private static final RestTemplate restTemplate = new RestTemplate();
     private static final Logger logger = Logger.getLogger(BrtHandler.class.getName());
     private static final Map<String, String> unhandledRecords = new HashMap<>();
-
-
-    private static BrtHandler instance = null;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        instance = this;
-    }
-
-    public static BrtHandler getInstance() {
-        return instance;
-    }
 
     /**
      * Пост-конструктор для инициализации чувствительных объектов до начала работы сервиса.
@@ -172,13 +160,12 @@ public class BrtHandler implements InitializingBean {
 
     /**
      * API для обработки запросов со стороны CRM по регистрации абонента в сети оператора "Ромашка"
-     * @param msisdn Номер телефона
      * @param body Тело запроса
      * @param head Заголовок с сигнатуорй источника
      * @return Ответ с информаицей об абоненте или с информацией об ошибке
      */
-    @PostMapping("/create/{msisdn}")
-    private ResponseEntity<String> managerCreateNewAbonent(@PathVariable String msisdn, @RequestBody String body, @RequestHeader(CUSTOM_HEADER) String head) {
+    @PostMapping("/create")
+    private ResponseEntity<String> managerCreateNewAbonent(@RequestBody String body, @RequestHeader(CUSTOM_HEADER) String head) {
         if (!checkSignature(head)) {
             return new ResponseEntity<>(DENY, HttpStatus.UNAUTHORIZED);
         } else {
@@ -191,6 +178,7 @@ public class BrtHandler implements InitializingBean {
             }
             double money = jsonNode.get("money").asDouble();
             String tariffId = jsonNode.get("tariffId").asText();
+            String msisdn = jsonNode.get("msisdn").asText();
 
             if (money == 0) {
                 money = 100;
@@ -494,23 +482,23 @@ public class BrtHandler implements InitializingBean {
         return monthlyTariffs;
     }
 
-    /**
-     * Метод для мануального запуска BRT-сервиса при помощи информации из файла
-     */
-
-    public void startWithExistingFile() {
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(CDR_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        cdrDataHandler(content.toString());
-    }
+//    /**
+//     * Метод для мануального запуска BRT-сервиса при помощи информации из файла
+//     */
+//
+//    public void startWithExistingFile() {
+//        StringBuilder content = new StringBuilder();
+//        try (BufferedReader reader = new BufferedReader(new FileReader(CDR_FILE))) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                content.append(line).append("\n");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        cdrDataHandler(content.toString());
+//    }
 
     /**
      * Метод для кодирования параметра URL-запроса

@@ -100,6 +100,16 @@ services:
     networks:
       - service_net
       - kafka_net
+  cdr:
+    build:
+      context: ./BootcampProjCdrGen/
+      dockerfile: ./dockerfile
+    networks:
+      - db_net
+      - kafka_net
+    restart: unless-stopped
+    depends_on:
+      - brt
   hrs1:
     container_name: hrs_clone_1
     build:
@@ -151,6 +161,36 @@ services:
     depends_on:
       - nginx_hrs
       - db_brt
+  crm1:
+    build:
+      context: ./BootcampProjCrm/
+      dockerfile: ./dockerfile
+    networks:
+      - service_net
+    ports:
+      - "9987:8079"
+    restart: unless-stopped
+  crm2:
+    build:
+      context: ./BootcampProjCrm/
+      dockerfile: ./dockerfile
+    networks:
+      - service_net
+    ports:
+      - "9988:8079"
+    restart: unless-stopped
+  nginx_crm:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "9989:9989"
+    volumes:
+      - ./nginx_crm.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - crm1
+      - crm2
+    networks:
+      - service_net
 networks:
   db_net:
     driver: bridge

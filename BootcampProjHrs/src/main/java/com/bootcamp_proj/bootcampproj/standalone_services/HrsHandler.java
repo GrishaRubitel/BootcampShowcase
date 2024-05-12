@@ -94,25 +94,16 @@ public class HrsHandler {
             return new ResponseEntity<>(INCORRECT_DATA, HttpStatus.BAD_REQUEST);
         }
 
-        UserMinutes user = checkUserContainment(msisdn, tariff);
+        UserMinutes user = new UserMinutes(msisdn, tariff, 0, 0);
+        TariffStats ts = tariffStats.get(tariff);
 
-        TariffStats tS = tariffStats.get(tariff);
-
-        if (user == null) {
-            user = new UserMinutes(msisdn, tariff, 0, 0);
+        if (usersWithTariff.containsKey(msisdn) && ts.getNum_of_minutes() == 0) {
+            usersWithTariff.remove(msisdn);
+            userMinutesService.deleteUser(msisdn);
+        } else if (ts.getNum_of_minutes() != 0) {
             usersWithTariff.put(user.getMsisdn(), user);
-        } else if (user == null && tS.getNum_of_minutes() != 0) {
-
-        } else {
-            if (tS.getNum_of_minutes() == 0) {
-                usersWithTariff.remove(user.getMsisdn());
-            } else {
-                user.setTariff_id(tariff);
-                user.zeroAllMinutes();
-                usersWithTariff.put(user.getMsisdn(), user);
-            }
+            userMinutesService.saveUserMinutes(user);
         }
-
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -125,6 +116,9 @@ public class HrsHandler {
             String tariff = jsonNode.get("tariff_d").asText();
 
             UserMinutes tempUser = checkUserContainment(msisdn, tariff);
+            if (tempUser == null) {
+                return new ResponseEntity<>(INCORRECT_DATA, HttpStatus.BAD_REQUEST);
+            }
             tempUser.zeroAllMinutes();
             userMinutesService.saveUserMinutes(tempUser);
 
@@ -187,7 +181,6 @@ public class HrsHandler {
             userMinutes.setAllMinutes(tStats.getNum_of_minutes());
             returnVal = noMinutesTariff(record, TARIFF_BY_DEFAULT);
         }
-
         userMinutesService.saveUserMinutes(userMinutes);
         return returnVal;
     }
@@ -196,10 +189,11 @@ public class HrsHandler {
         if (usersWithTariff.containsKey(msisdn)) {
             return usersWithTariff.get(msisdn);
         } else {
+            int mins = tariffStats.get(tariff).getNum_of_minutes();
             UserMinutes temp = userMinutesService.getUser(msisdn);
             if (temp != null) {
                 usersWithTariff.put(temp.getMsisdn(), temp);
-            } else if (temp == null && tariffStats.get(tariff).getNum_of_minutes() != 0) {
+            } else if (mins != 0) {
                 temp = new UserMinutes(msisdn, tariff, ZERO, ZERO);
                 usersWithTariff.put(temp.getMsisdn(), temp);
             } else {
