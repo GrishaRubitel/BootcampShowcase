@@ -66,7 +66,7 @@ public class BrtHandler {
     private static final String LOGS_CDR_CORROSION = "./usr/local/logs/CDRCorrosion.txt";
     private static final String BRT_SIGNATURE = "BRT-Signature";
 
-    private static WeakHashMap<Long, BrtAbonents> brtAbonentsMap;
+    private static Map<Long, BrtAbonents> brtAbonentsMap;
     private static LinkedList<String> monthlyTariffs;
     private static MonthStack monthHolder;
     private static final RestTemplate restTemplate = new RestTemplate();
@@ -456,8 +456,8 @@ public class BrtHandler {
     /**
      * Метод извлекает всех абонентов из БД "ромашки"
      */
-    private WeakHashMap<Long, BrtAbonents> selectAllAbonents() {
-        WeakHashMap<Long, BrtAbonents> brtAbonentsMap = new WeakHashMap<>();
+    private Map<Long, BrtAbonents> selectAllAbonents() {
+        Map<Long, BrtAbonents> brtAbonentsMap = new HashMap<>();
 
         for (BrtAbonents elem : brtAbonentsService.findAll()) {
             brtAbonentsMap.put(elem.getMsisdn(), elem);

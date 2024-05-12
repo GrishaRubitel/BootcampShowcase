@@ -94,6 +94,11 @@ public class CrmHandler {
         }
     }
 
+    /**
+     * Обработчик плохих ответов. Клиенту не надо знать служебную информацию, если вдруг она будет передана
+     * @param entity Ответ запрашиваемого сервиса
+     * @return Исправленный или неисправленный ответ
+     */
     private ResponseEntity<String> badResponseHandler(ResponseEntity<String> entity) {
         if (entity.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
             return new ResponseEntity<>("Incorrect Request", HttpStatus.BAD_REQUEST);
@@ -104,17 +109,33 @@ public class CrmHandler {
         }
     }
 
+    /**
+     * Метод проверяет заголовок Authorization на наличие админских данных
+     * @param auth Заголовок
+     * @return Ложь или истина
+     */
     private boolean checkAdminAuthorization(HttpHeaders auth) {
         String[] arr = extractBasicHeader(auth);
         return arr[0].equals(ADMIN) && arr[1].equals(ADMIN);
     }
 
+    /**
+     * Метод запрашивает у BRT информацию об абоненте, с целью авторизации запроса
+     * @param header Заголовок
+     * @return Ложь или истина
+     */
     private boolean checkAbonentInBrt(HttpHeaders header) {
         String url = STARTER_URL + CHECK_CONTAINMENT + MSISDN_PARAM + extractBasicHeader(header)[0];
         ResponseEntity<String> resp = sendRequestToBrt(url, HttpMethod.GET);
         return resp.getStatusCode().equals(HttpStatus.OK);
     }
 
+    /**
+     * Метод составляет HTTP запрос для BRT
+     * @param url URL запрос
+     * @param httpMethod HTTP метод
+     * @return Результат обращения
+     */
     private ResponseEntity<String> sendRequestToBrt(String url, HttpMethod httpMethod) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(CUSTOM_HEADER, CRM_SIGNATURE);
@@ -123,6 +144,13 @@ public class CrmHandler {
         return finalSendToBrt(url, httpMethod, entity);
     }
 
+    /**
+     * Метод составляет HTTP запрос для BRT. Данная перегрузка работает с Request Body
+     * @param url URL запрос
+     * @param httpMethod HTTP метод
+     * @param body Request Body
+     * @return Результат обращения
+     */
     private ResponseEntity<String> sendRequestToBrt(String url, HttpMethod httpMethod, String body) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(CUSTOM_HEADER, CRM_SIGNATURE);
@@ -131,6 +159,13 @@ public class CrmHandler {
         return finalSendToBrt(url, httpMethod, entity);
     }
 
+    /**
+     * Отправка запроса на BRT
+     * @param url URL запрос
+     * @param method HTTP метод
+     * @param entity Заголовки и Request Body (опционально)
+     * @return Результат обращения
+     */
     private ResponseEntity<String> finalSendToBrt(String url, HttpMethod method, HttpEntity<String> entity) {
         ResponseEntity<String> response;
         try {
@@ -139,10 +174,15 @@ public class CrmHandler {
             return badResponseHandler(response);
         } catch(Exception e) {
             logger.warning(e.getMessage());
-            return new ResponseEntity<>("Service unavailable. Try Again Later", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Service Unavailable. Try Again Later", HttpStatus.BAD_REQUEST);
         }
     }
 
+    /**
+     * Извлечение информации из заголовка Authorization и её декодирование
+     * @param headers Заголовок
+     * @return Дешифрованные данные
+     */
     private static String[] extractBasicHeader(HttpHeaders headers) {
         if (headers.containsKey(HttpHeaders.AUTHORIZATION)) {
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
@@ -152,6 +192,6 @@ public class CrmHandler {
                 return credentials.split(COLON, 2);
             }
         }
-        throw new IllegalArgumentException("Authorization header is missing or not in Basic format");
+        throw new IllegalArgumentException("Authorization Header Is Missing Or Not In Basic Format");
     }
 }
